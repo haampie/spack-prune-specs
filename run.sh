@@ -2,16 +2,6 @@
 
 buildcaches="aws-ahug aws-ahug-aarch64 aws-isc aws-isc-aarch64 build_systems data-vis-sdk e4s e4s-mac e4s-oneapi e4s-power gpu-tests ml-linux-x86_64-cpu ml-linux-x86_64-cuda ml-linux-x86_64-rocm radiuss radiuss-aws radiuss-aws-aarch64 tutorial"
 
-download() {
-    code=$(curl -Lsfo "$1" -w "%{http_code}" "$2")
-    if [ "$code" = "404" ]; then
-        echo "Not found: $2 (artifacts removed?)"
-    elif [ "$code" != "200" ]; then
-        echo "FATAL: Couldn't fetch $2 due to $code response."
-        exit 1
-    fi
-}
-
 fetch_all_from_recent_pipelines() {
     url="https://gitlab.spack.io/api/v4/projects/2"
     since="$1"
