@@ -1,10 +1,10 @@
 spack:
   specs:
-  - grep
-  - gawk
   - awscli
-  - curl
   - bash
+  - curl
+  - gawk
+  - grep
   - jq
   view:
     default:
