@@ -59,7 +59,7 @@ buildcache.hashes: .deps/env
 prunable.filelist: buildcache.hashes pipeline.hashes
 	cat buildcache.hashes pipeline.hashes pipeline.hashes | sort | uniq -u > prunable.hashes
 	aws s3 --region us-east-1 --no-sign-request ls --recursive "s3://spack-binaries/develop" | grep -Ff prunable.hashes > prunable.filelist-with-metadata
-	awk '{ sum+=$$3 }END{print $$sum;}' prunable.filelist-with-metadata
+	awk '{ sum += $$3 } END { print sum " bytes can be deleted" }' prunable.filelist-with-metadata
 	awk '{ print $$4 }' prunable.filelist-with-metadata > prunable.filelist
 	wc -l prunable.filelist
 
