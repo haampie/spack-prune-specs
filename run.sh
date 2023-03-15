@@ -106,7 +106,13 @@ list_removable_files() {
     done
     wait
 
+    # List all files to delete from all buildcaches
     awk '{ print $4 }' remove/* > remove-all
+
+    # THe develop buildcache is the sum of them, so drop the develop/<name>/ bit.
+    perl -pe 's|^develop/.*?/|develop/|' < remove-all | sort | uniq > remove-all-develop
+
+    gzip remove-all remove-all-develop
 }
 
 #fetch_all_from_recent_pipelines 2023-02-10
