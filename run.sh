@@ -12,17 +12,6 @@ download() {
     fi
 }
 
-extract_hashes() {
-    echo "Extracting all hashes from spack.lock files"
-    rm -rf hashes
-
-    for f in download/*.lock; do
-        jq -r '.concrete_specs | keys_unsorted | .[]' < "$f" >> hashes
-    done
-
-    sort < hashes | uniq > pipeline.hashes
-}
-
 fetch_all_from_recent_pipelines() {
     url="https://gitlab.spack.io/api/v4/projects/2"
     since="$1"
@@ -59,7 +48,7 @@ fetch_all_from_recent_pipelines() {
 
     curl --parallel --parallel-max 8 "${args[@]}"
 
-    extract_hashes
+    cat download/*.lock | jq -r '.concrete_specs | keys_unsorted | .[]' | sort | uniq > pipeline.hashes
 }
 
 fetch_all_from_buildcaches() {
