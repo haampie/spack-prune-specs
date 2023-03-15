@@ -64,7 +64,7 @@ prunable.filelist: buildcache.hashes pipeline.hashes
 	wc -l prunable.filelist
 
 clean:
-	rm -rf *.hashes prunable.* download buildcache hashes remove-all
+	rm -rf *.hashes prunable.* download/ buildcache/
 
 ifeq (,$(filter clean,$(MAKECMDGOALS)))
 include env.mk
