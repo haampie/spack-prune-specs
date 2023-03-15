@@ -37,12 +37,10 @@ fetch_all_from_recent_pipelines() {
         [ -z "$pipelines" ] && break
         for pipeline in $pipelines; do
             for job in $(curl -LfsS "$url/pipelines/$pipeline/jobs" | jq '.[] | select( .stage == "generate" and .status == "success" ) | .id'); do
-                download "download/$pipeline-$job.lock" "$url/jobs/$job/artifacts/jobs_scratch_dir/concrete_environment/spack.lock" &
+                download "download/$pipeline-$job.lock" "$url/jobs/$job/artifacts/jobs_scratch_dir/concrete_environment/spack.lock"
             done
         done
     done
-
-    wait
 
     extract_hashes
 }
@@ -57,10 +55,8 @@ fetch_all_from_buildcaches() {
     mkdir -p buildcache
 
     for name in $buildcaches; do
-        buildcache_hashes "$name" &
+        buildcache_hashes "$name"
     done
-
-    wait
 
     cat buildcache/*.hashes | sort | uniq > buildcache.hashes
 }

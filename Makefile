@@ -15,7 +15,7 @@ pipeline.hashes prunabable.hashes prunable.filelist: export PATH := $(CURDIR)/vi
 pipeline.hashes: .deps/env
 	./run.sh pipelines
 
-buildcache.hashes: pipeline.hashes
+buildcache.hashes: .deps/env
 	./run.sh buildcaches
 
 prunable.filelist: buildcache.hashes
