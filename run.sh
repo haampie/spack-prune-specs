@@ -5,7 +5,7 @@ buildcaches="aws-ahug aws-ahug-aarch64 aws-isc aws-isc-aarch64 build_systems dat
 download() {
     code=$(curl -Lsfo "$1" -w "%{http_code}" "$2")
     if [ "$code" = "404" ]; then
-        echo "Couldn't fetch $2 due to $code response."
+        echo "Not found: $2 (artifacts removed?)"
     elif [ "$code" != "200" ]; then
         echo "FATAL: Couldn't fetch $2 due to $code response."
         exit 1
