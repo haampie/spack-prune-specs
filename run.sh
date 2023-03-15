@@ -27,26 +27,39 @@ fetch_all_from_recent_pipelines() {
     url="https://gitlab.spack.io/api/v4/projects/2"
     since="$1"
     mkdir -p download
-
     echo "Fetching all spack.lock files of pipelines since $since"
 
+    # Download all pages of pipelines
     for page in $(seq 100); do
-        pipeline_url="$url/pipelines?ref=develop&per_page=32&page=$page&updated_after=$since"
+        pipeline_url="$url/pipelines?ref=develop&per_page=100&page=$page&updated_after=$since"
         echo "Fetching page $page: $pipeline_url..."
         pipelines=$(curl -LfsS "$pipeline_url" | jq '.[].id')
         [ -z "$pipelines" ] && break
-        for pipeline in $pipelines; do
-            for job in $(curl -LfsS "$url/pipelines/$pipeline/jobs" | jq '.[] | select( .stage == "generate" and .status == "success" ) | .id'); do
-                download "download/$pipeline-$job.lock" "$url/jobs/$job/artifacts/jobs_scratch_dir/concrete_environment/spack.lock"
-            done
+
+        # Download all the pipelines as download/{id}.pipeline
+        args=()
+        for p in $pipelines; do
+            args+=("$url/pipelines/$p/jobs")
+            args+=("-fSLo")
+            args+=("download/$p.pipeline")
         done
+        curl --parallel --parallel-max 8 "${args[@]}"
     done
 
-    extract_hashes
-}
+    # Retrieve all jobs
+    jobs="$(cat download/*.pipeline | jq '.[] | select( .stage == "generate" and .status == "success" ) | .id')"
 
-buildcache_hashes() {
-    curl -LfsS "https://binaries.spack.io/develop/$1/build_cache/index.json" | jq -r '.database.installs | .[] | select( .in_buildcache ) | .spec.hash' | sort | uniq > "buildcache/$1.hashes"
+    # Download all spack.lock
+    args=()
+    for j in $jobs; do
+        args+=("$url/jobs/$j/artifacts/jobs_scratch_dir/concrete_environment/spack.lock")
+        args+=("-fSLo")
+        args+=("download/$j.lock")
+    done
+
+    curl --parallel --parallel-max 8 "${args[@]}"
+
+    extract_hashes
 }
 
 fetch_all_from_buildcaches() {
@@ -54,8 +67,17 @@ fetch_all_from_buildcaches() {
 
     mkdir -p buildcache
 
-    for name in $buildcaches; do
-        buildcache_hashes "$name"
+    args=()
+    for b in $buildcaches; do
+        args+=("https://binaries.spack.io/develop/$b/build_cache/index.json")
+        args+=("-fSLo")
+        args+=("buildcache/$b.index.json")
+    done
+
+    curl --parallel --parallel-max 8 "${args[@]}"
+
+    for b in $buildcaches; do
+        jq -r '.database.installs | .[] | select( .in_buildcache ) | .spec.hash' < "buildcache/$b.index.json" | sort | uniq > "buildcache/$b.hashes"
     done
 
     cat buildcache/*.hashes | sort | uniq > buildcache.hashes

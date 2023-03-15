@@ -2,7 +2,7 @@ spack:
   specs:
   - awscli
   - bash
-  - curl
+  - 'curl@7.66:'
   - gawk
   - grep
   - jq

@@ -18,7 +18,7 @@ pipeline.hashes: .deps/env
 buildcache.hashes: .deps/env
 	./run.sh buildcaches
 
-prunable.filelist: buildcache.hashes
+prunable.filelist: buildcache.hashes pipeline.hashes
 	./run.sh prunable
 
 clean:
