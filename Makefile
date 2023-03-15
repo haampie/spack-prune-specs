@@ -3,7 +3,7 @@ SPACK:=spack
 all: prunable.filelist
 
 spack.lock: spack.yaml
-	$(SPACK) -e . external find python curl gawk jq bash
+	$(SPACK) -e . external find python curl gawk jq bash automake autoconf m4 libtool
 	$(SPACK) -e . concretize -f
 
 env.mk: spack.lock
