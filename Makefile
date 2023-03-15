@@ -45,6 +45,8 @@ pipeline.hashes: .deps/env
 	cat download/*.lock | jq -r '.concrete_specs | keys_unsorted | .[]' | sort | uniq > pipeline.hashes
 
 buildcache.hashes: .deps/env
+	mkdir -p buildcache
+
 	args=""; \
 	for b in $(BUILDCACHES); do \
 		args="$$args https://binaries.spack.io/develop/$$b/build_cache/index.json -fSLo buildcache/$$b.index.json"; \
