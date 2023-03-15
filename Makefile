@@ -11,7 +11,7 @@ BUILDCACHES := aws-ahug aws-ahug-aarch64 aws-isc \
 all: prunable.filelist
 
 spack.lock: spack.yaml
-	$(SPACK) -e . external find curl gawk jq bash automake autoconf m4 libtool perl
+	$(SPACK) -e . external find curl gawk jq automake autoconf m4 libtool perl
 	$(SPACK) -e . concretize -f
 
 env.mk: spack.lock
