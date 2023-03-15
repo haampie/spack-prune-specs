@@ -1,0 +1,13 @@
+spack:
+  specs:
+  - grep
+  - gawk
+  - awscli
+  - curl
+  - bash
+  - jq
+  view:
+    default:
+      root: ./view
+      link_type: symlink
+      link: run

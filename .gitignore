@@ -1,0 +1,13 @@
+view
+._view
+spack.lock
+.spack-env
+.deps
+env.mk
+*.hashes
+buildcache/
+download/
+hashes
+prunable.filelist-with-metadata
+prunable.filelist
+remove-all
