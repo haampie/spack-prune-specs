@@ -65,11 +65,11 @@ bucket:
 	aws s3 --region us-east-1 --no-sign-request ls --recursive "s3://spack-binaries/develop" > $@
 
 %.filelist: %.hashes bucket
-	cat bucket | awk '{ print $$4 }' | grep -Ff $< > $@
+	awk '{ print $$4 }' bucket | grep -Ff $< > $@
 	wc -l $@
 
 clean:
-	rm -rf *.hashes prunable.* download/ buildcache/
+	rm -rf *.hashes *.filelist bucket download/ buildcache/
 
 ifeq (,$(filter clean,$(MAKECMDGOALS)))
 include env.mk
