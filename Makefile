@@ -8,7 +8,7 @@ BUILDCACHES := aws-ahug aws-ahug-aarch64 aws-isc \
 	ml-linux-x86_64-rocm radiuss radiuss-aws \
 	radiuss-aws-aarch64 tutorial
 
-all: prunable.filelist
+all: buildcache-minus-pipelines.filelist
 
 spack.lock: spack.yaml
 	$(SPACK) -e . external find curl gawk jq automake autoconf m4 libtool perl
@@ -18,7 +18,7 @@ env.mk: spack.lock
 	$(SPACK) -e . env depfile -o $@ --make-prefix .deps
 
 # These jobs use stuff from the view
-pipeline.hashes prunabable.hashes prunable.filelist: export PATH := $(CURDIR)/view/bin:$(PATH)
+%.hashes %.filelist bucket: export PATH := $(CURDIR)/view/bin:$(PATH)
 
 pipeline.hashes: .deps/env
 	mkdir -p download
@@ -55,12 +55,18 @@ buildcache.hashes: .deps/env
 
 	cat buildcache/*.index.json | jq -r '.database.installs | .[] | select( .in_buildcache ) | .spec.hash' | sort | uniq > buildcache.hashes
 
-prunable.filelist: buildcache.hashes pipeline.hashes
-	cat buildcache.hashes pipeline.hashes pipeline.hashes | sort | uniq -u > prunable.hashes
-	aws s3 --region us-east-1 --no-sign-request ls --recursive "s3://spack-binaries/develop" | grep -Ff prunable.hashes > prunable.filelist-with-metadata
-	awk '{ sum += $$3 } END { print sum " bytes can be deleted" }' prunable.filelist-with-metadata
-	awk '{ print $$4 }' prunable.filelist-with-metadata > prunable.filelist
-	wc -l prunable.filelist
+buildcache-intersect-pipelines.hashes: buildcache.hashes pipeline.hashes
+	cat buildcache.hashes pipeline.hashes | sort | uniq -d > $@
+
+buildcache-minus-pipelines.hashes: buildcache.hashes pipeline.hashes
+	cat buildcache.hashes pipeline.hashes pipeline.hashes | sort | uniq -u > $@
+
+bucket:
+	aws s3 --region us-east-1 --no-sign-request ls --recursive "s3://spack-binaries/develop" > $@
+
+%.filelist: %.hashes bucket
+	cat bucket | awk '{ print $$4 }' | grep -Ff $< > $@
+	wc -l $@
 
 clean:
 	rm -rf *.hashes prunable.* download/ buildcache/

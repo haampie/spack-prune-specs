@@ -4,10 +4,9 @@ spack.lock
 .spack-env
 .deps
 env.mk
+
+bucket
 *.hashes
+*.filelist
 buildcache/
 download/
-hashes
-prunable.filelist-with-metadata
-prunable.filelist
-remove-all
